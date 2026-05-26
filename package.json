@@ -1,5 +1,5 @@
 {
-  "name": "@nexide/strapi-provider-bunny",
+  "name": "@solocommercenl/strapi-provider-bunny",
   "version": "1.3.4",
   "description": "Bunny.net provider for Strapi upload",
   "main": "./lib/index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/NexideSas/strapi-provider-bunny.git"
+    "url": "git+https://github.com/Solocommercenl/strapi-provider-bunny.git"
   },
   "keywords": [
     "strapi",
@@ -20,7 +20,7 @@
     "storage",
     "bunny.net",
     "cdn",
-    "nexide"
+    "solocommercenl"
   ],
   "strapi": {
     "isProvider": true,
@@ -34,17 +34,21 @@
   },
   "dependencies": {
     "@strapi/utils": "^5.x.x",
-    "axios": "^0.21.1"
+    "axios": "^1.13.2"
   },
   "author": "Jorge Zambrano <jorge@nexide.co> (https://nexide.co)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/NexideSas/strapi-provider-bunny/issues"
+    "url": "https://github.com/Solocommercenl/strapi-provider-bunny/issues"
   },
-  "homepage": "https://github.com/NexideSas/strapi-provider-bunny#readme",
+  "homepage": "https://github.com/Solocommercenl/strapi-provider-bunny#readme",
   "directories": {
     "lib": "lib"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "packageManager": "pnpm@10.24.0",
   "devDependencies": {
     "@babel/cli": "^7.23.9",
     "@babel/core": "^7.23.9",
