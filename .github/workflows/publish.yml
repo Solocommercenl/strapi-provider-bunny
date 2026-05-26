@@ -18,7 +18,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  SOURCE_REF: ${{ github.event_name == 'release' && github.event.repository.default_branch || github.event.pull_request.head.sha || github.sha }}
+  SOURCE_REF: ${{ github.event_name == 'release' && github.ref || github.event.pull_request.head.sha || github.sha }}
 
 permissions:
   contents: read
@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: Download source
         run: |
-          curl -fsSL "https://github.com/${{ github.repository }}/archive/${SOURCE_REF}.tar.gz" -o source.tar.gz
+          curl -fsSL --retry 5 --retry-delay 5 --retry-connrefused --max-time 60 "https://github.com/${{ github.repository }}/archive/${SOURCE_REF}.tar.gz" -o source.tar.gz
           mkdir source
           tar -xzf source.tar.gz --strip-components=1 -C source
 
@@ -71,7 +71,7 @@ jobs:
     steps:
       - name: Download source
         run: |
-          curl -fsSL "https://github.com/${{ github.repository }}/archive/${SOURCE_REF}.tar.gz" -o source.tar.gz
+          curl -fsSL --retry 5 --retry-delay 5 --retry-connrefused --max-time 60 "https://github.com/${{ github.repository }}/archive/${SOURCE_REF}.tar.gz" -o source.tar.gz
           mkdir source
           tar -xzf source.tar.gz --strip-components=1 -C source
 
