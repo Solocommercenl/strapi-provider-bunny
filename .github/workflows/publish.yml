@@ -9,9 +9,16 @@ on:
     types:
       - published
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the package to GitHub Packages
+        required: false
+        type: boolean
+        default: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  SOURCE_REF: ${{ github.event_name == 'release' && github.ref || github.event.pull_request.head.sha || github.sha }}
 
 permissions:
   contents: read
@@ -23,10 +30,11 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          persist-credentials: false
+      - name: Download source
+        run: |
+          curl -fsSL --retry 5 --retry-delay 5 --retry-connrefused --max-time 60 "https://github.com/${{ github.repository }}/archive/${SOURCE_REF}.tar.gz" -o source.tar.gz
+          mkdir source
+          tar -xzf source.tar.gz --strip-components=1 -C source
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
@@ -34,16 +42,20 @@ jobs:
           node-version: 24
           registry-url: https://npm.pkg.github.com
           scope: "@solocommercenl"
+          package-manager-cache: false
 
       - name: Setup pnpm
+        working-directory: source
         run: |
           corepack enable
           corepack prepare pnpm@10.24.0 --activate
 
       - name: Install dependencies
+        working-directory: source
         run: pnpm install --frozen-lockfile
 
       - name: Build package
+        working-directory: source
         run: pnpm run build
 
   publish:
@@ -51,16 +63,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: validate
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)
     permissions:
       contents: read
       packages: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-        with:
-          persist-credentials: false
+      - name: Download source
+        run: |
+          curl -fsSL --retry 5 --retry-delay 5 --retry-connrefused --max-time 60 "https://github.com/${{ github.repository }}/archive/${SOURCE_REF}.tar.gz" -o source.tar.gz
+          mkdir source
+          tar -xzf source.tar.gz --strip-components=1 -C source
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
@@ -68,19 +81,24 @@ jobs:
           node-version: 24
           registry-url: https://npm.pkg.github.com
           scope: "@solocommercenl"
+          package-manager-cache: false
 
       - name: Setup pnpm
+        working-directory: source
         run: |
           corepack enable
           corepack prepare pnpm@10.24.0 --activate
 
       - name: Install dependencies
+        working-directory: source
         run: pnpm install --frozen-lockfile
 
       - name: Build package
+        working-directory: source
         run: pnpm run build
 
       - name: Publish package
+        working-directory: source
         run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
